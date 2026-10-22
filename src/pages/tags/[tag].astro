@@ -1,0 +1,51 @@
+---
+import ArticleList from '../../components/ArticleList.astro';
+import Base from '../../layouts/Base.astro';
+import { collectTags, getArticles, getProjects, slugify } from '../../lib/content';
+
+export async function getStaticPaths() {
+	const tags = collectTags(await getArticles(), await getProjects());
+	return tags.map((tag) => ({ params: { tag: tag.slug }, props: { label: tag.label } }));
+}
+
+interface Props {
+	label: string;
+}
+
+const { label } = Astro.props;
+const articles = (await getArticles()).filter((article) =>
+	article.data.tags.some((tag) => slugify(tag) === Astro.params.tag),
+);
+const projects = (await getProjects()).filter((project) =>
+	project.data.tags.some((tag) => slugify(tag) === Astro.params.tag),
+);
+---
+
+<Base title={label} description={`Articles and projects tagged ${label}.`}>
+	<main id="content" class="wrap">
+		<div class="page-title">
+			<p class="kicker">Tag</p>
+			<h1>{label}</h1>
+		</div>
+		{
+			projects.length > 0 && (
+				<section class="section">
+					<h2>Projects</h2>
+					<div class="card-grid">
+						{projects.map((project) => (
+							<a class="card" href={`/projects/${project.id}/`}>
+								<p class="status">{project.data.status}</p>
+								<h3>{project.data.title}</h3>
+								<p>{project.data.description}</p>
+							</a>
+						))}
+					</div>
+				</section>
+			)
+		}
+		<section class="section">
+			<h2>Articles</h2>
+			<ArticleList articles={articles} empty={`No articles tagged ${label} yet.`} />
+		</section>
+	</main>
+</Base>

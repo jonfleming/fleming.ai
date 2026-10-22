@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+import { SOCIAL_LINKS } from '../consts';
+---
+
+<Base title="Contact" description="How to reach Jon Fleming.">
+	<main id="content" class="wrap page-title">
+		<h1>Contact</h1>
+		<div class="prose">
+			<p>
+				I can be reached at <a href="mailto:me@jonfleming.com">me@jonfleming.com</a>.
+			</p>
+			<ul>
+				{SOCIAL_LINKS.filter((link) => link.name !== 'Email').map((link) => (
+					<li><a href={link.href}>{link.name}</a></li>
+				))}
+			</ul>
+		</div>
+	</main>
+</Base>

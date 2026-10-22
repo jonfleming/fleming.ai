@@ -1,0 +1,59 @@
+---
+import ArticleList from '../components/ArticleList.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Base from './Base.astro';
+import { slugify, type Article } from '../lib/content';
+
+interface Props {
+	article: Article;
+	related?: Article[];
+}
+
+const { article, related = [] } = Astro.props;
+const { title, description, date, updated, category, tags, hero } = article.data;
+---
+
+<Base title={title} description={description} image={hero} ogType="article" published={date} tags={tags}>
+	<main id="content" class="wrap article-head">
+		<article>
+			<p class="kicker">
+				<a href={`/topics/${slugify(category)}/`}>{category}</a>
+			</p>
+			<h1>{title}</h1>
+			<p class="byline">
+				<FormattedDate date={date} />
+				{updated && (
+					<span>
+						Updated <FormattedDate date={updated} />
+					</span>
+				)}
+			</p>
+			<p>{description}</p>
+			{
+				tags.length > 0 && (
+					<p class="tag-row">
+						{tags.map((tag) => (
+							<a href={`/tags/${slugify(tag)}/`}>{tag}</a>
+						))}
+					</p>
+				)
+			}
+			{hero && (
+				<div class="hero-frame">
+					<img src={hero} alt="" />
+				</div>
+			)}
+			<div class="prose">
+				<slot />
+			</div>
+		</article>
+		{
+			related.length > 0 && (
+				<section class="related">
+					<h2>More in {category}</h2>
+					<ArticleList articles={related} />
+				</section>
+			)
+		}
+	</main>
+</Base>

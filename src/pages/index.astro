@@ -1,49 +1,79 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import ArticleList from '../components/ArticleList.astro';
+import Base from '../layouts/Base.astro';
+import { SITE_DESCRIPTION, SITE_TITLE, TOPICS } from '../consts';
+import { getArticles, getProjects } from '../lib/content';
+
+const articles = await getArticles();
+const projects = await getProjects();
+const featured = TOPICS.filter((topic) => topic.featured);
+const leadProject = projects.find((project) => project.data.featured) ?? projects[0];
+const leadLog = leadProject
+	? [...leadProject.data.log].sort((a, b) => b.date.valueOf() - a.date.valueOf()).slice(0, 4)
+	: [];
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-				serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-				website, blog, or portfolio with Astro.
+<Base title={SITE_TITLE} description={SITE_DESCRIPTION}>
+	<main id="content">
+		<section class="hero wrap">
+			<p class="kicker">A living laboratory</p>
+			<h1>Fleming AI</h1>
+			<p class="lede">Exploring practical AI, robotics, voice assistants and intelligent homes.</p>
+			<p class="sublede">
+				Building things with AI, Raspberry Pi, ESP32, Home Assistant and robots.
 			</p>
-			<p>
-				This template comes with a few integrations already configured in your{' '}
-				<code>astro.config.mjs</code> file. You can customize your setup with{' '}
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to{' '}
-				<a href="https://docs.astro.build/">read the docs</a>{' '}
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out{' '}
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>{' '}
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
-</html>
+		</section>
+
+		<section class="section wrap">
+			<h2>In the lab</h2>
+			<div class="card-grid">
+				{
+					featured.map((topic) => (
+						<a class="card" href={`/topics/${topic.slug}/`}>
+							<h3>{topic.title}</h3>
+							<p>{topic.description}</p>
+						</a>
+					))
+				}
+			</div>
+		</section>
+
+		{
+			leadProject && (
+				<section class="section wrap">
+					<h2>Current project</h2>
+					<a class="card" href={`/projects/${leadProject.id}/`}>
+						<p class="kicker">{leadProject.data.status}</p>
+						<h3>{leadProject.data.title}</h3>
+						<p>{leadProject.data.description}</p>
+					</a>
+					{
+						leadLog.length > 0 && (
+							<ol class="log">
+								{leadLog.map((entry) => (
+									<li>
+										<time datetime={entry.date.toISOString()}>
+											{entry.date.toLocaleDateString('en-US', {
+												month: 'short',
+												year: 'numeric',
+												timeZone: 'UTC',
+											})}
+										</time>
+										<div>{entry.summary}</div>
+									</li>
+								))}
+							</ol>
+						)
+					}
+					<p><a href="/projects/">All projects</a></p>
+				</section>
+			)
+		}
+
+		<section class="section wrap">
+			<h2>Articles</h2>
+			<ArticleList articles={articles.slice(0, 5)} />
+			<p><a href="/articles/">All articles</a></p>
+		</section>
+	</main>
+</Base>

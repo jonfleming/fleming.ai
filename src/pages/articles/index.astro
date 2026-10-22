@@ -1,0 +1,21 @@
+---
+import ArticleList from '../../components/ArticleList.astro';
+import Base from '../../layouts/Base.astro';
+import { getArticles } from '../../lib/content';
+
+const articles = await getArticles();
+---
+
+<Base
+	title="Articles"
+	description="Notes on local AI, robotics, voice, ESP32, and home automation."
+>
+	<main id="content" class="wrap">
+		<div class="page-title">
+			<p class="kicker">Notebook</p>
+			<h1>Articles</h1>
+			<p>Each article is a Markdown file in this site. Notes accumulate here as the projects move.</p>
+		</div>
+		<ArticleList articles={articles} />
+	</main>
+</Base>

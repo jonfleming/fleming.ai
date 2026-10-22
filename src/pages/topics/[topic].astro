@@ -1,0 +1,77 @@
+---
+import ArticleList from '../../components/ArticleList.astro';
+import Base from '../../layouts/Base.astro';
+import { TOPICS, type Topic } from '../../consts';
+import {
+	articlesForTopic,
+	getArticles,
+	getProjects,
+	projectsForTopic,
+	slugify,
+	topicForSlug,
+} from '../../lib/content';
+
+export async function getStaticPaths() {
+	const articles = await getArticles();
+	const projects = await getProjects();
+	const slugs = new Set(TOPICS.map((topic) => topic.slug));
+	for (const article of articles) slugs.add(slugify(article.data.category));
+	for (const project of projects) slugs.add(slugify(project.data.category));
+	return [...slugs].map((topic) => ({ params: { topic } }));
+}
+
+const slug = Astro.params.topic ?? '';
+const defined = topicForSlug(slug);
+const articles = await getArticles();
+const projects = await getProjects();
+
+const topic: Topic = defined ?? {
+	slug,
+	title:
+		articles.find((article) => slugify(article.data.category) === slug)?.data.category ??
+		projects.find((project) => slugify(project.data.category) === slug)?.data.category ??
+		slug,
+	description: '',
+	category:
+		articles.find((article) => slugify(article.data.category) === slug)?.data.category ??
+		projects.find((project) => slugify(project.data.category) === slug)?.data.category,
+};
+
+const topicArticles = articlesForTopic(articles, topic);
+const topicProjects = projectsForTopic(projects, topic);
+const description =
+	topic.description || `Articles and projects filed under ${topic.title}.`;
+---
+
+<Base title={topic.title} description={description}>
+	<main id="content" class="wrap">
+		<div class="page-title">
+			<p class="kicker">Topic</p>
+			<h1>{topic.title}</h1>
+			<p>{description}</p>
+		</div>
+		{
+			topicProjects.length > 0 && (
+				<section class="section">
+					<h2>Projects</h2>
+					<div class="card-grid">
+						{topicProjects.map((project) => (
+							<a class="card" href={`/projects/${project.id}/`}>
+								<p class="status">{project.data.status}</p>
+								<h3>{project.data.title}</h3>
+								<p>{project.data.description}</p>
+							</a>
+						))}
+					</div>
+				</section>
+			)
+		}
+		<section class="section">
+			<h2>Articles</h2>
+			<ArticleList
+				articles={topicArticles}
+				empty={`No articles filed under ${topic.title} yet.`}
+			/>
+		</section>
+	</main>
+</Base>

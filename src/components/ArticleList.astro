@@ -1,0 +1,30 @@
+---
+import type { Article } from '../lib/content';
+import FormattedDate from './FormattedDate.astro';
+
+interface Props {
+	articles: Article[];
+	empty?: string;
+}
+
+const { articles, empty = 'No articles in this section yet.' } = Astro.props;
+---
+
+{
+	articles.length === 0 ? (
+		<p class="empty">{empty}</p>
+	) : (
+		<ul class="article-list">
+			{articles.map((article) => (
+				<li>
+					<a href={`/articles/${article.id}/`}>
+						<p class="kicker">{article.data.category}</p>
+						<h3>{article.data.title}</h3>
+						<p>{article.data.description}</p>
+						<FormattedDate date={article.data.date} />
+					</a>
+				</li>
+			))}
+		</ul>
+	)
+}

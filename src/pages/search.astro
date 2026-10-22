@@ -1,0 +1,85 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Search" description="Search Fleming AI articles and projects.">
+	<main id="content" class="wrap">
+		<div class="page-title">
+			<h1>Search</h1>
+			<p>Looks through titles, descriptions, tags, and article text.</p>
+		</div>
+		<form class="search-form" role="search">
+			<label class="sr-only" for="q">Search</label>
+			<input id="q" name="q" type="search" placeholder="Memory, ESP32, Reachy…" autocomplete="off" />
+		</form>
+		<p id="search-count" class="empty"></p>
+		<div id="search-results"></div>
+	</main>
+</Base>
+
+<script>
+	const input = document.querySelector<HTMLInputElement>('#q');
+	const results = document.querySelector('#search-results');
+	const count = document.querySelector('#search-count');
+
+	interface Hit {
+		kind: string;
+		title: string;
+		description: string;
+		url: string;
+		category: string;
+		tags: string[];
+		text: string;
+	}
+
+	function haystack(hit: Hit) {
+		return [hit.title, hit.description, hit.category, hit.tags.join(' '), hit.text]
+			.join(' ')
+			.toLowerCase();
+	}
+
+	function render(items: Hit[], query: string) {
+		if (!results || !count) return;
+		const needle = query.trim().toLowerCase();
+		const matched = needle ? items.filter((item) => haystack(item).includes(needle)) : items;
+		count.textContent = needle
+			? `${matched.length} match${matched.length === 1 ? '' : 'es'}`
+			: `${items.length} pages`;
+		results.replaceChildren();
+		const list = document.createElement('div');
+		list.className = 'card-grid';
+		for (const item of matched) {
+			const link = document.createElement('a');
+			link.className = 'card';
+			link.href = item.url;
+			const kicker = document.createElement('p');
+			kicker.className = 'kicker';
+			kicker.textContent = `${item.kind} · ${item.category}`;
+			const title = document.createElement('h3');
+			title.textContent = item.title;
+			const description = document.createElement('p');
+			description.textContent = item.description;
+			link.append(kicker, title, description);
+			list.append(link);
+		}
+		results.append(list);
+	}
+
+	const params = new URLSearchParams(location.search);
+	if (input) input.value = params.get('q') ?? '';
+
+	fetch('/search.json')
+		.then((response) => response.json())
+		.then((items: Hit[]) => {
+			const paint = () => {
+				const query = input?.value ?? '';
+				const url = new URL(location.href);
+				if (query) url.searchParams.set('q', query);
+				else url.searchParams.delete('q');
+				history.replaceState(null, '', url);
+				render(items, query);
+			};
+			input?.addEventListener('input', paint);
+			paint();
+		});
+</script>

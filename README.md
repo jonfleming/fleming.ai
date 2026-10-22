@@ -1,63 +1,35 @@
-# Astro Starter Kit: Blog
+# Fleming AI
 
-```sh
-npm create astro@latest -- --template blog
-```
+Personal laboratory notebook for practical AI, robotics, voice assistants, and intelligent homes. Static [Astro](https://astro.build) site for [fleming.ai](https://fleming.ai).
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Commands
 
-Features:
+| Command | Action |
+| :------ | :----- |
+| `npm install` | Install dependencies |
+| `npm run dev` | Local dev server at `localhost:4321` |
+| `npm run build` | Production build in `dist/` |
+| `npm run preview` | Preview the production build |
 
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and Open Graph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
+## Content
 
-## 🚀 Project Structure
+- Articles: `src/content/articles/*.md`
+- Projects: `src/content/projects/*.md`
+- Topics: `src/consts.ts`
 
-Inside of your Astro project, you'll see the following folders and files:
+An article is Markdown plus frontmatter (`title`, `description`, `date`, `category`, `tags`, optional `hero` and `draft`). A project adds `status`, hardware and model fields, and a `log`. A log entry can point at an article with `article: <id>`.
 
-```text
-├── public/
-├── src/
-│   ├── assets/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
-├── astro.config.mjs
-├── README.md
-├── package.json
-└── tsconfig.json
-```
+## Cloudflare Pages
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Connect the GitHub repository to Cloudflare Pages:
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+- Build command: `npm run build`
+- Build output directory: `dist`
+- Production branch: `main`
+- Node.js: 22
 
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
+Add the custom domain `fleming.ai` in the Pages project (Custom domains). Apex domains are supported. SSL is included when the DNS zone is on Cloudflare.
 
-Any static assets, like images, can be placed in the `public/` directory.
+`public/_redirects` keeps a few old WordPress paths pointed at the new pages. `public/_headers` caches hashed assets.
 
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## Credit
-
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+There is no PHP, MySQL, or WordPress server in this setup.

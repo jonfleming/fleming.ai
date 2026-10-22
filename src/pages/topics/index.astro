@@ -1,0 +1,49 @@
+---
+import Base from '../../layouts/Base.astro';
+import { TOPICS } from '../../consts';
+import { getArticles, getProjects, slugify } from '../../lib/content';
+
+const articles = await getArticles();
+const projects = await getProjects();
+const known = new Set(TOPICS.map((topic) => topic.slug));
+const extras = new Map<string, string>();
+
+for (const article of articles) {
+	const slug = slugify(article.data.category);
+	if (!known.has(slug)) extras.set(slug, article.data.category);
+}
+for (const project of projects) {
+	const slug = slugify(project.data.category);
+	if (!known.has(slug) && !TOPICS.some((topic) => topic.tag && slugify(topic.tag) === slug)) {
+		extras.set(slug, project.data.category);
+	}
+}
+---
+
+<Base title="Topics" description="Categories for Fleming AI articles and projects.">
+	<main id="content" class="wrap">
+		<div class="page-title">
+			<p class="kicker">Categories</p>
+			<h1>Topics</h1>
+			<p>Articles and projects share these shelves. A new category in frontmatter shows up here.</p>
+		</div>
+		<div class="card-grid">
+			{
+				TOPICS.map((topic) => (
+					<a class="card" href={`/topics/${topic.slug}/`}>
+						<h3>{topic.title}</h3>
+						<p>{topic.description}</p>
+					</a>
+				))
+			}
+			{
+				[...extras.entries()].map(([slug, label]) => (
+					<a class="card" href={`/topics/${slug}/`}>
+						<h3>{label}</h3>
+						<p>Notes filed under {label}.</p>
+					</a>
+				))
+			}
+		</div>
+	</main>
+</Base>

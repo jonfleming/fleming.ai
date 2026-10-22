@@ -1,0 +1,89 @@
+---
+import FormattedDate from '../components/FormattedDate.astro';
+import { slugify, type Project } from '../lib/content';
+import Base from './Base.astro';
+
+interface Props {
+	project: Project;
+}
+
+const { project } = Astro.props;
+const data = project.data;
+const facts = [
+	['Status', data.status],
+	['Hardware', data.hardware.length ? data.hardware.join(', ') : undefined],
+	['LLM', data.llm],
+	['Memory', data.memory],
+	['Voice', data.voice],
+	['Vision', data.vision],
+].filter((entry): entry is [string, string] => Boolean(entry[1]));
+
+const log = [...data.log].sort((a, b) => b.date.valueOf() - a.date.valueOf());
+---
+
+<Base
+	title={data.title}
+	description={data.description}
+	image={data.hero}
+	ogType="article"
+	published={data.started}
+	tags={data.tags}
+>
+	<main id="content" class="wrap project-layout">
+		<p class="kicker">
+			<a href={`/topics/${slugify(data.category)}/`}>{data.category}</a>
+		</p>
+		<h1>{data.title}</h1>
+		<p class="lede">{data.description}</p>
+		{
+			data.tags.length > 0 && (
+				<p class="tag-row">
+					{data.tags.map((tag) => (
+						<a href={`/tags/${slugify(tag)}/`}>{tag}</a>
+					))}
+				</p>
+			)
+		}
+		{data.hero && (
+			<div class="hero-frame">
+				<img src={data.hero} alt="" />
+			</div>
+		)}
+		<dl class="facts">
+			{
+				facts.map(([label, value]) => (
+					<>
+						<dt>{label}</dt>
+						<dd>{value}</dd>
+					</>
+				))
+			}
+		</dl>
+		<div class="prose">
+			<slot />
+		</div>
+		{
+			log.length > 0 && (
+				<section class="related">
+					<h2>Project log</h2>
+					<ol class="log">
+						{log.map((entry) => (
+							<li>
+								<FormattedDate date={entry.date} monthYear />
+								<div>
+									{entry.summary}
+									{entry.article && (
+										<>
+											{' '}
+											<a href={`/articles/${entry.article}/`}>Read the note</a>
+										</>
+									)}
+								</div>
+							</li>
+						))}
+					</ol>
+				</section>
+			)
+		}
+	</main>
+</Base>

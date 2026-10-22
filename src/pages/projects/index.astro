@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getProjects } from '../../lib/content';
+
+const projects = await getProjects();
+---
+
+<Base
+	title="Projects"
+	description="Living project notebooks for robotics, voice, ESP32, and home automation."
+>
+	<main id="content" class="wrap">
+		<div class="page-title">
+			<p class="kicker">Laboratory</p>
+			<h1>Projects</h1>
+			<p>
+				A project is a Markdown file with a status, a stack, and a log. New log lines can point at
+				an article when there is a longer note.
+			</p>
+		</div>
+		<div class="card-grid">
+			{
+				projects.map((project) => (
+					<a class="card" href={`/projects/${project.id}/`}>
+						<p class="status">{project.data.status}</p>
+						<h3>{project.data.title}</h3>
+						<p>{project.data.description}</p>
+					</a>
+				))
+			}
+		</div>
+	</main>
+</Base>
