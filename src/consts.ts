@@ -64,6 +64,12 @@ export const TOPICS: Topic[] = [
 		featured: true,
 	},
 	{
+		slug: 'tools',
+		title: 'Tools',
+		description: 'Small desk tools, and the files that keep them honest.',
+		category: 'Tools',
+	},
+	{
 		slug: 'reachy-mini',
 		title: 'Reachy Mini',
 		description:
